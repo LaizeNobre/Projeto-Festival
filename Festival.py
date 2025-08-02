@@ -9,25 +9,23 @@ class Logavel(ABC):
     """Qualquer classe logável DEVE implementar logar_entrada()."""
     @abstractmethod
     def logar_entrada(self):
-        pass
+        return f'{self._nome} logado!'
 
 # -------------------------------------------------
 # 2) Mixins                                       🡇
 # -------------------------------------------------
 class IdentificavelMixin:
-    """Gera um ID único; combine‑o com outras classes."""
+    """Gera um ID único; combine-o com outras classes."""
     def __init__(self):
-        # TODO: gerar e armazenar um ID usando uuid.uuid4()
-        pass
+        self.__id= uuid.uuid4() # TODO: gerar e armazenar um ID usando uuid.uuid4()
     def get_id(self):
-        # TODO: retornar o ID
-        pass
+        return self.__id # TODO: retornar o ID
 
 class AuditavelMixin:
     """Fornece logs simples ao console."""
     def log_evento(self, evento: str):
         # TODO: imprimir no formato  [LOG] <evento>
-        pass
+        print(f'[LOG]: {evento}')
 
 # -------------------------------------------------
 # 3) Classe base Pessoa                           🡇
@@ -35,15 +33,16 @@ class AuditavelMixin:
 class Pessoa:
     """Classe base para pessoas do sistema."""
     def __init__(self, nome: str, cpf: str):
+        self._nome= nome
+        self._cpf= cpf
         # TODO: armazenar nome e cpf como atributos protegidos
-        pass
     @property
     def nome(self):
+        return self._nome
         # TODO: retornar o nome
-        pass
     def __str__(self):
+        return(f'{self._nome} ({self._cpf})')
         # TODO: "Maria (123.456.789-00)"
-        pass
 
 # -------------------------------------------------
 # 4) Ingresso — classe simples                    🡇
@@ -62,14 +61,32 @@ class Ingresso:
 class Cliente(Pessoa):
     """Herda de Pessoa e possui ingressos."""
     def __init__(self, nome: str, cpf: str, email: str):
+        super().__init__(nome,cpf)
+        self._email=email
+        self._ingressos=[]
         # TODO: chamar super().__init__ e criar lista vazia de ingressos
-        pass
+
     def comprar_ingresso(self, ingresso: Ingresso):
+        self._ingressos.append(ingresso)
         # TODO: adicionar ingresso à lista
-        pass
     def listar_ingressos(self):
+        print(self._ingressos)
+        return
         # TODO: imprimir os ingressos
-        pass
+
+
+class Funcionario (AuditavelMixin,IdentificavelMixin,Pessoa,Logavel):
+    def __init__(self, cargo, registro):
+        self._cargo = cargo
+        self._registro= registro
+    def exibir_dados(self):
+        return (f'nome:{self._nome}; cargo:{self._cargo}; registro:{self._registro}; ID:{self.get_id()}')
+    def logar_entrada(self):
+        return self.logar_entrada()
+
+
+    '''SOCORRO'''
+        
 
 # -------------------------------------------------
 # 6) Funcionario (herança múltipla + mixins)      🡇
@@ -87,11 +104,54 @@ class Cliente(Pessoa):
 class Palco:
     """Objeto que compõe o Festival."""
     def __init__(self, nome: str, capacidade: int):
+        self.nome= nome
+        self.capacidade= capacidade
         # TODO: armazenar nome e capacidade
-        pass
+
     def resumo(self):
+        return (self.nome,'-', self.capacidade)
         # TODO: retornar string "Palco X – cap. Y pessoas"
-        pass
+
+
+class Festival:
+    def __init__(self,nome,data:date,local,palco: Palco):
+        self.nome=nome
+        self.data=data
+        self.local=local
+        self.palco=palco
+        self.clientes=[]
+        self.ingressos=[]
+        self.equipe=[]
+
+    def vender_ingresso(self,cliente: Cliente, ingresso: Ingresso):
+        if (self.palco.capacidade - len(self.ingressos)) <=0:
+            raise ValueError ("Ingressos esgotados!")
+        else:
+            self.ingressos.append(ingresso)
+            
+            #SOCORROOOOOOOOOOOOOOOOO
+
+            self.clientes.append(cliente)
+            return "Ingresso comprado!"
+        
+    def adicionar_funcionario(self,func:Funcionario):
+        if func not in self.equipe:
+            self.equipe.append(func)
+            return 'funcionário cadastrado!'
+        else: 
+            return 'funcionário já cadastrado.'
+        
+    def listar_clientes(self):
+        return self.clientes
+    def listar_equipe(self):
+        return self.equipe
+    def listar_ingressos(self):
+        return self.ingressos
+
+        
+
+
+    
 
 # -------------------------------------------------
 # 8) Festival (composição com Palco)              🡇
@@ -110,7 +170,7 @@ class Palco:
 # 9) EmpresaEventos                               🡇
 # -------------------------------------------------
 class EmpresaEventos:
-    """Agrupa seus festivais (has‑a)."""
+    """Agrupa seus festivais (has-a)."""
     def __init__(self, nome: str):
         # TODO: validar nome (≥ 3 letras) e criar lista vazia de festivais
         pass
