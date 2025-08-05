@@ -9,7 +9,7 @@ class Logavel(ABC):
     """Qualquer classe logável DEVE implementar logar_entrada()."""
     @abstractmethod
     def logar_entrada(self):
-        return f'{self._nome} logado!'
+        pass
 
 # -------------------------------------------------
 # 2) Mixins                                       🡇
@@ -82,7 +82,7 @@ class Funcionario (AuditavelMixin,IdentificavelMixin,Pessoa,Logavel):
     def exibir_dados(self):
         return (f'nome:{self._nome}; cargo:{self._cargo}; registro:{self._registro}; ID:{self.get_id()}')
     def logar_entrada(self):
-        return self.logar_entrada()
+        print(f"Funcionário: {self._nome} - Entrada: {date()}")
 
 
     '''SOCORRO'''
@@ -204,6 +204,26 @@ class EmpresaEventos:
             print(i.nome)
         # TODO: imprimir todos os festivais
 
+class Auditor(IdentificavelMixin,Logavel):
+    def __init__(self,nome):
+        self.nome = nome
+
+    def logar_entrada(self):
+        print(f"Nome: {self.nome} - Entrada: {date()}")
+        
+    def auditar_festival(self,fest):
+        if fest.clientes == fest.palco.capacidade:
+            print( f'capacidade máxima atingida')
+        else:
+            print(f'eu acho que cabe mais')
+
+        if len(fest.equipe) >=1:
+            print(f'existe ao menos um funcionário')
+        else:
+            print(f'não há funcionário algum')
+
+            
+            
 # -------------------------------------------------
 # 10) Auditor (Identificável + Logável)           🡇
 # -------------------------------------------------
