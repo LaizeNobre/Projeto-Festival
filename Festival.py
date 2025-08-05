@@ -172,25 +172,37 @@ class Festival:
 class EmpresaEventos:
     """Agrupa seus festivais (has-a)."""
     def __init__(self, nome: str):
+        self.festivais = []
+        if len(nome) >= 3:
+            self._nome = nome
+        else:
+            raise ValueError ("Nome mínimo de três caracteres")
         # TODO: validar nome (≥ 3 letras) e criar lista vazia de festivais
-        pass
     @property
     def nome(self):
+        return self._nome
         # TODO: retornar nome
-        pass
     @nome.setter
     def nome(self, novo_nome: str):
+        if len(novo_nome) >= 3:
+            self._nome = novo_nome
+        else:
+            raise ValueError ("Nome mínimo de três caracteres")
         # TODO: validar + atualizar nome
-        pass
-    def adicionar_festival(self, festival):
+    def adicionar_festival(self, festival: Festival):
+        self.festivais.append(festival)
         # TODO: adicionar festival à lista
-        pass
     def buscar_festival(self, nome: str):
+        for i in self.festivais:
+            if i.nome == nome:
+                return i
+            else:
+                return "Festival não encontrado"
         # TODO: retornar festival ou None
-        pass
     def listar_festivais(self):
+        for i in self.festivais:
+            print(i.nome)
         # TODO: imprimir todos os festivais
-        pass
 
 # -------------------------------------------------
 # 10) Auditor (Identificável + Logável)           🡇
