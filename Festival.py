@@ -24,7 +24,7 @@ class IdentificavelMixin:
 class AuditavelMixin:
     """Fornece logs simples ao console."""
     def log_evento(self, evento: str):
-        # TODO: imprimir no formato  [LOG] <evento>
+        # TODO: imprimir no formato  "[LOG] <evento>"
         print(f'[LOG]: {evento}')
 
 # -------------------------------------------------
@@ -70,19 +70,23 @@ class Cliente(Pessoa):
         self._ingressos.append(ingresso)
         # TODO: adicionar ingresso à lista
     def listar_ingressos(self):
-        print(self._ingressos)
+        for i in self._ingressos:
+            print(i)
         return
         # TODO: imprimir os ingressos
 
 
 class Funcionario (AuditavelMixin,IdentificavelMixin,Pessoa,Logavel):
-    def __init__(self, cargo, registro):
+    def __init__(self,cargo,nome,cpf):
+        super().__init__(nome,cpf)
         self._cargo = cargo
-        self._registro= registro
+        self._registro=[]
     def exibir_dados(self):
         return (f'nome:{self._nome}; cargo:{self._cargo}; registro:{self._registro}; ID:{self.get_id()}')
     def logar_entrada(self):
-        print(f"Funcionário: {self._nome} - Entrada: {date()}")
+        self._registro.append(str(date.today()))
+        print(f"Funcionário: {self._nome} - Entrada: {date.today()}")
+        
 
 
     '''SOCORRO'''
@@ -101,38 +105,42 @@ class Funcionario (AuditavelMixin,IdentificavelMixin,Pessoa,Logavel):
 # -------------------------------------------------
 # 7) Palco (objeto de composição)                 🡇
 # -------------------------------------------------
-class Palco:
-    """Objeto que compõe o Festival."""
-    def __init__(self, nome: str, capacidade: int):
-        self.nome= nome
-        self.capacidade= capacidade
-        # TODO: armazenar nome e capacidade
 
-    def resumo(self):
-        return (self.nome,'-', self.capacidade)
-        # TODO: retornar string "Palco X – cap. Y pessoas"
 
 
 class Festival:
-    def __init__(self,nome,data:date,local,palco: Palco):
+    def __init__(self,nome,data:date,local,capacidade,nome_palco,*valores):
         self.nome=nome
         self.data=data
         self.local=local
-        self.palco=palco
+        self.palco= self.Palco(nome_palco,capacidade)
         self.clientes=[]
-        self.ingressos=[]
         self.equipe=[]
+        self.ingressos=[*valores]
 
     def vender_ingresso(self,cliente: Cliente, ingresso: Ingresso):
-        if (self.palco.capacidade - len(self.ingressos)) <=0:
-            raise ValueError ("Ingressos esgotados!")
-        else:
-            self.ingressos.append(ingresso)
-            
-            #SOCORROOOOOOOOOOOOOOOOO
+        for i in self.ingressos:
+            if i.valor == ingresso.valor and i.codigo == ingresso.codigo and i.tipo == ingresso.tipo and self.palco.capacidade>=1:
+                if cliente in self.clientes:
+                    pass
+                else:
+                    self.clientes.append(cliente)
+                cliente.comprar_ingresso(i)
+                self.ingressos.remove(i)
+                self.palco.capacidade-=1
+                return
+            else:
+                raise ValueError ("INGRESSO NÃO DISPONÍVEL NO FESTIVAL")
 
-            self.clientes.append(cliente)
-            return "Ingresso comprado!"
+        # if (self.palco.capacidade - len(self.clientes)) <=0:
+        #     raise ValueError ("Ingressos esgotados!")
+        # else:
+        #     cliente._ingressos.append(ingresso)
+            
+        #     #SOCORROOOOOOOOOOOOOOOOO
+
+        #     self.clientes.append(cliente)
+        #     return "Ingresso comprado!"
         
     def adicionar_funcionario(self,func:Funcionario):
         if func not in self.equipe:
@@ -142,11 +150,30 @@ class Festival:
             return 'funcionário já cadastrado.'
         
     def listar_clientes(self):
-        return self.clientes
+        for clientinho in self.clientes:
+            print(" -", clientinho._nome)
+
+    
     def listar_equipe(self):
-        return self.equipe
+        for funcionario in self.equipe:
+            print(funcionario.exibir_dados())
+
     def listar_ingressos(self):
-        return self.ingressos
+        for i in self.ingressos:
+            print(" -", i)
+
+    
+    class Palco:
+        """Objeto que compõe o Festival."""
+    def __init__(self, nome: str, capacidade: int):
+        self.nome= nome
+        self.capacidade= capacidade
+        # TODO: armazenar nome e capacidade
+
+    def resumo(self):
+        return (f'palco: {self.nome} - capacidade: {self.capacidade}')
+        # TODO: retornar string "Palco X – cap. Y pessoas"
+        
 
         
 
@@ -192,13 +219,16 @@ class EmpresaEventos:
     def adicionar_festival(self, festival: Festival):
         self.festivais.append(festival)
         # TODO: adicionar festival à lista
+        
     def buscar_festival(self, nome: str):
         for i in self.festivais:
             if i.nome == nome:
-                return i
-            else:
-                return "Festival não encontrado"
+                encontrado=True
+                return "festival encontrado!"
+        if not encontrado:
+            return f"festival {nome} não encontrado!"
         # TODO: retornar festival ou None
+
     def listar_festivais(self):
         for i in self.festivais:
             print(i.nome)
